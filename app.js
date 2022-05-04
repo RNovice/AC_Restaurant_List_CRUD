@@ -2,6 +2,7 @@ const express = require('express')
 const exhbs = require('express-handlebars')
 const mongoose = require('mongoose')
 const Restaurant = require('./models/restaurants')
+const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
 
@@ -21,6 +22,7 @@ app.engine('handlebars', exhbs.engine({ defaultLayout : 'main' }))
 app.set ('view engine', 'handlebars')
 
 app.use(express.static('public'))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/', (req, res) => {
 
@@ -59,7 +61,17 @@ app.get('/search', (req, res)  => {
         })
         .catch(error => console.error(error))
 
+})
 
+app.get('/add', (req, res) => {
+    res.render('add')
+})
+
+app.post('/restaurants', (req, res) => {
+    Restaurant.create(req.body)
+        .then(() => res.redirect('/'))
+        .catch(error => console.log(error))
+    
 })
 
 app.listen(port, () =>{
