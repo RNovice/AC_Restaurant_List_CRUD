@@ -24,6 +24,7 @@ app.set ('view engine', 'handlebars')
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: true }))
 
+//根目錄
 app.get('/', (req, res) => {
 
     Restaurant.find()
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
         .catch(error => console.error(error))
 })
 
+//各餐廳詳細資料
 app.get('/restaurants/:id', (req, res) => {
     Restaurant.findById(req.params.id)
         .lean()
@@ -39,20 +41,20 @@ app.get('/restaurants/:id', (req, res) => {
         .catch(error => console.log(error))
 })
 
+//搜尋功能
 app.get('/search', (req, res)  => {
 
     Restaurant.find()
         .lean()
         .then(restaurants => {
-            const keyword = [
-                ...(restaurants.filter( 
-                    rtr => rtr.name.toLowerCase().includes(req.query.keyword.toLowerCase()))),
-                ...(restaurants.filter( 
-                    rtr => rtr.name_en.toLocaleLowerCase().includes(req.query.keyword.toLowerCase()))),
-                ...(restaurants.filter( 
-                    rtr => rtr.category.includes(req.query.keyword)))
-            ]
-
+            //將與關鍵字相符的資料放入keyword中
+            const arr = ['name', 'name_en', 'category']
+            let keyword = []
+            arr.forEach(each => {
+                keyword.push(...(restaurants.filter(
+                    rtr => rtr[each].toLowerCase().includes(req.query.keyword.toLowerCase()))))
+            })
+            //移除重複的資料
             const filteredSearchResults = keyword.filter((item,index,arr)=>{
                 return arr.indexOf(item) === index
             })
@@ -63,10 +65,12 @@ app.get('/search', (req, res)  => {
 
 })
 
+//新增頁面
 app.get('/add', (req, res) => {
     res.render('add')
 })
 
+//新增餐廳資料
 app.post('/restaurants', (req, res) => {
     Restaurant.create(req.body)
         .then(() => res.redirect('/'))
@@ -74,6 +78,7 @@ app.post('/restaurants', (req, res) => {
     
 })
 
+//刪除餐廳資料
 app.post('/restaurants/:id/delete', (req, res) => {
     Restaurant.findById(req.params.id)
         .then(rtr => rtr.remove())
@@ -81,6 +86,7 @@ app.post('/restaurants/:id/delete', (req, res) => {
         .catch(error => console.log(error))
 })
 
+//編輯頁面
 app.get('/restaurants/:id/edit', (req, res) => {
     Restaurant.findById(req.params.id)
         .lean()
@@ -88,6 +94,7 @@ app.get('/restaurants/:id/edit', (req, res) => {
         .catch(error => console.log(error))
 })
 
+//編輯餐廳資料
 app.post('/restaurants/:id/edit', (req, res) => {
     Restaurant.findByIdAndUpdate(req.params.id, req.body)
         .then(() => res.redirect(`/restaurants/${req.params.id}`))
