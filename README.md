@@ -57,8 +57,8 @@ cd restaurant_list_CRUD
 npm install
 ```
 
-３.若使用自己的MongoDB資料庫
-> app.js 第9行 修改連線資料庫
+３.MongoDB資料庫連線設定
+> app.js 第9行 修改連線資料庫 or 設定環境參數 MONGODB_URI 為資料庫URI
 ```js
 mongoose.connect('資料庫URI', { useNewUrlParser: true, useUnifiedTopology: true })
 ```
